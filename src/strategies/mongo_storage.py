@@ -3,7 +3,7 @@ from typing import List, Optional
 from datetime import datetime, timedelta
 from pymongo import MongoClient
 from src.interfaces.storage import StorageStrategy
-from src.models.types import Project
+from src.models.types import Project, ProjectStatus
 
 class MongoStorage(StorageStrategy):
     def __init__(self):
@@ -38,5 +38,5 @@ class MongoStorage(StorageStrategy):
 
     def get_all_active(self) -> List[Project]:
         """Retrieve all active projects."""
-        cursor = self.projects.find({"status": "ACTIVE"})
+        cursor = self.projects.find({"status": ProjectStatus.ACTIVE.value})
         return [Project(**data) for data in cursor]
