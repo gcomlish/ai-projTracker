@@ -12,7 +12,7 @@ class GeminiLLM(LLMStrategy):
         if not api_key:
             raise ValueError("GOOGLE_API_KEY environment variable is not set")
         genai.configure(api_key=api_key)
-        self.model = genai.GenerativeModel('gemini-1.5-flash')
+        self.model = genai.GenerativeModel('gemini-2.0-flash')
 
     def summarize_thread(self, context: str) -> str:
         """Summarize a conversation thread or log."""
