@@ -26,18 +26,21 @@ class GeminiLLM(LLMStrategy):
         - summary: A concise narrative summary of the project status.
         - next_steps: A list of immediate next steps.
         - estimated_completion: A brief string estimating when the current phase might be done.
-        
-        Output JSON only.
         """
-        response = self.model.generate_content(prompt)
-        # Clean up code blocks if present
-        text = response.text.strip()
-        if text.startswith("```json"):
-            text = text[7:-3].strip()
-        elif text.startswith("```"):
-            text = text[3:-3].strip()
-            
-        return text
+        try:
+            response = self.model.generate_content(
+                prompt,
+                generation_config={"response_mime_type": "application/json"}
+            )
+            return response.text
+        except Exception as e:
+            print(f"Error generating summary: {e}")
+            # Fallback to a basic JSON if generation fails
+            return json.dumps({
+                "summary": "Error generating summary.",
+                "next_steps": [],
+                "estimated_completion": "Unknown"
+            })
 
     def extract_tasks(self, context: str) -> List[Task]:
         """Extract actionable tasks from a context."""
@@ -49,28 +52,29 @@ class GeminiLLM(LLMStrategy):
         
         Return a JSON list of strings, where each string is a clear, concise task description.
         Example: ["Fix bug in login", "Update documentation"]
-        
-        Output JSON only.
         """
-        response = self.model.generate_content(prompt)
-        
-        # Clean up code blocks if present
-        text = response.text.strip()
-        if text.startswith("```json"):
-            text = text[7:-3].strip()
-        elif text.startswith("```"):
-            text = text[3:-3].strip()
-            
         try:
+            response = self.model.generate_content(
+                prompt,
+                generation_config={"response_mime_type": "application/json"}
+            )
+            text = response.text
             task_strings = json.loads(text)
+            
+            # Handle case where LLM might return a dict instead of list
+            if isinstance(task_strings, dict) and "tasks" in task_strings:
+                task_strings = task_strings["tasks"]
+            
             tasks = []
-            for task_str in task_strings:
-                tasks.append(Task(
-                    id=str(uuid.uuid4()),
-                    title=task_str,
-                    description="Extracted from context"
-                ))
+            if isinstance(task_strings, list):
+                for task_str in task_strings:
+                    if isinstance(task_str, str):
+                        tasks.append(Task(
+                            id=str(uuid.uuid4()),
+                            title=task_str,
+                            description="Extracted from context"
+                        ))
             return tasks
-        except json.JSONDecodeError:
-            print(f"Failed to parse JSON from LLM: {text}")
+        except Exception as e:
+            print(f"Error extracting tasks: {e}")
             return []

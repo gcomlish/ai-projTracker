@@ -10,7 +10,15 @@ class MongoStorage(StorageStrategy):
         mongo_uri = os.environ.get("MONGO_URI")
         if not mongo_uri:
             raise ValueError("MONGO_URI environment variable is not set")
-        self.client = MongoClient(mongo_uri)
+        # Add timeout to fail fast if connection is bad
+        self.client = MongoClient(mongo_uri, serverSelectionTimeoutMS=5000)
+        
+        # Verify connection immediately
+        try:
+            self.client.admin.command('ping')
+        except Exception as e:
+            raise ConnectionError(f"Failed to connect to MongoDB: {e}")
+            
         self.db = self.client.get_database()
         self.projects = self.db.projects
 
