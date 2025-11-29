@@ -36,7 +36,25 @@ class CliIO(IOStrategy):
         self.console.print(f"Last Updated: {project.updated_at.strftime('%Y-%m-%d %H:%M:%S')}")
         
         self.console.print(f"\n[bold]Summary:[/bold]")
-        self.console.print(project.description or "No summary available.")
+        
+        # Try to parse summary as JSON
+        try:
+            import json
+            summary_data = json.loads(project.description)
+            if isinstance(summary_data, dict):
+                self.console.print(f"[bold]Status Narrative:[/bold] {summary_data.get('summary', 'N/A')}")
+                
+                next_steps = summary_data.get('next_steps', [])
+                if next_steps:
+                    self.console.print(f"\n[bold]Next Steps:[/bold]")
+                    for step in next_steps:
+                        self.console.print(f"- {step}")
+                
+                self.console.print(f"\n[bold]Estimated Completion:[/bold] {summary_data.get('estimated_completion', 'N/A')}")
+            else:
+                self.console.print(project.description)
+        except json.JSONDecodeError:
+            self.console.print(project.description or "No summary available.")
         
         self.console.print(f"\n[bold]Log History:[/bold]")
         table = Table(show_header=True, header_style="bold magenta")

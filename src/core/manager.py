@@ -80,13 +80,16 @@ class ProjectManager:
         """View detailed status and logs of a project."""
         project = self.storage.get_project(project_name_or_id)
         if not project:
-            # Try finding by name if ID lookup fails (simple linear search for now)
-            # In a real app, storage should support get_by_name
+            # Try finding by name if ID lookup fails
             all_active = self.storage.get_all_active()
-            for p in all_active:
-                if p.name == project_name_or_id:
-                    project = p
-                    break
+            matches = [p for p in all_active if p.name == project_name_or_id]
+            
+            if matches:
+                # Sort by updated_at descending to get the most recent one
+                matches.sort(key=lambda p: p.updated_at, reverse=True)
+                project = matches[0]
+                if len(matches) > 1:
+                    print(f"Note: Found {len(matches)} projects with name '{project_name_or_id}'. Showing the most recent one (ID: {project.id}).")
         
         if project:
             self.io.render_project_details(project)
