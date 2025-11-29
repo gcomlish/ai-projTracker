@@ -18,8 +18,35 @@ This project was built using a prompt-driven, meta-management process. The devel
 3.  **Phase 3: Core Manager Logic**
     - Developed the `ProjectManager` class to coordinate strategies, implementing business logic for "Rolling Summaries" and stale project detection.
 
-4.  **Phase 4: Real LLM Strategy (Gemini API)**
     - Integrated Google's Gemini API to replace the mock LLM, enabling real intelligence for summarizing project threads and extracting actionable tasks.
 
 5.  **Phase 5: Application Entry Point (main.py)**
-    - (Upcoming) Wiring everything together into a runnable application.
+    - Implemented `main.py` to wire everything together into a runnable application.
+
+## 🚀 Usage
+
+The application is run via the `main.py` entry point. Ensure your virtual environment is active (`source venv/bin/activate`) and your `.env` file is configured.
+
+### Commands
+
+#### 1. Daily Briefing
+Runs the daily dashboard, checking for stale projects and displaying active ones.
+```bash
+python main.py daily-briefing
+```
+
+#### 2. Add Log
+Adds a log entry to a project. If the project doesn't exist, it will be created. The LLM will automatically generate/update the project summary.
+```bash
+python main.py add-log <project_name_or_id> "Your log message here"
+```
+Example:
+```bash
+python main.py add-log "Website Redesign" "Completed the homepage layout using CSS Grid."
+```
+
+#### 3. Check Stale Projects
+Manually triggers the stale project check (updates status to WARNING > 3 days, STALE > 7 days).
+```bash
+python main.py check-stale
+```
