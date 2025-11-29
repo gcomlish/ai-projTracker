@@ -75,3 +75,20 @@ class ProjectManager:
         self.check_stale_projects()
         active_projects = self.storage.get_all_active()
         self.io.render_dashboard(active_projects)
+
+    def view_project(self, project_name_or_id: str) -> None:
+        """View detailed status and logs of a project."""
+        project = self.storage.get_project(project_name_or_id)
+        if not project:
+            # Try finding by name if ID lookup fails (simple linear search for now)
+            # In a real app, storage should support get_by_name
+            all_active = self.storage.get_all_active()
+            for p in all_active:
+                if p.name == project_name_or_id:
+                    project = p
+                    break
+        
+        if project:
+            self.io.render_project_details(project)
+        else:
+            print(f"Project '{project_name_or_id}' not found.")

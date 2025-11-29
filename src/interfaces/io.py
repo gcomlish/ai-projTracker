@@ -9,6 +9,11 @@ class IOStrategy(ABC):
         pass
 
     @abstractmethod
+    def render_project_details(self, project: Project) -> None:
+        """Display detailed view of a project."""
+        pass
+
+    @abstractmethod
     def get_input(self, prompt: str) -> str:
         """Get input from the user."""
         pass

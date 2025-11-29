@@ -50,3 +50,13 @@ Manually triggers the stale project check (updates status to WARNING > 3 days, S
 ```bash
 python main.py check-stale
 ```
+
+#### 4. View Project Details
+View the detailed status, summary, and log history of a specific project.
+```bash
+python main.py view-project <project_name_or_id>
+```
+Example:
+```bash
+python main.py view-project "Website Redesign"
+```

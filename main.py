@@ -45,6 +45,10 @@ def main():
     # check-stale command
     subparsers.add_parser("check-stale", help="Check for stale projects")
 
+    # view-project command
+    view_project_parser = subparsers.add_parser("view-project", help="View project details")
+    view_project_parser.add_argument("project", help="Project ID or Name")
+
     # Parse arguments
     args = parser.parse_args()
 
@@ -57,6 +61,8 @@ def main():
     elif args.command == "check-stale":
         manager.check_stale_projects()
         print("Stale project check completed.")
+    elif args.command == "view-project":
+        manager.view_project(args.project)
     else:
         parser.print_help()
 
